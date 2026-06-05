@@ -22,11 +22,11 @@ jobs:
           python-version: "3.11"
 
       - name: 依存パッケージをインストール
-        run: pip install requests openai
+        run: pip install requests
 
       - name: ニュース収集 → 投稿文生成 → Threads 投稿
         env:
-          OPENAI_API_KEY:        ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN:         ${{ secrets.GITHUB_TOKEN }}
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID:      ${{ secrets.THREADS_USER_ID }}
         run: python threads_security_post.py

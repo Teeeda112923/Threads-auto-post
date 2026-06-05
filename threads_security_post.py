@@ -3,7 +3,7 @@
 threads_security_post.py  v2.0
 ───────────────────────────────
 セキュリティニュースを複数ソースから収集し、
-OpenAI GPT API で Threads 投稿文を生成 → Threads API で自動投稿する。
+GitHub Models (GPT-4o) で Threads 投稿文を生成 → Threads API で自動投稿する。
 
 ニュースソース:
   - GitHub Advisory Database API
@@ -18,7 +18,7 @@ OpenAI GPT API で Threads 投稿文を生成 → Threads API で自動投稿す
   python threads_security_post.py --no-post  # 生成のみ・Threads 投稿はスキップ
 
 環境変数:
-  OPENAI_API_KEY          必須
+  GITHUB_TOKEN            必須（GitHub Actions では自動付与）
   THREADS_ACCESS_TOKEN    必須（Threads への投稿時）
   THREADS_USER_ID         必須（Threads への投稿時）
 """
@@ -207,9 +207,9 @@ def generate_post(news_items: list[dict], dry_run: bool = False) -> dict:
             "source_url": "https://example.com",
         }
 
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = os.environ.get("GITHUB_TOKEN")
     if not api_key:
-        print("[ERROR] OPENAI_API_KEY が設定されていません。", file=sys.stderr)
+        print("[ERROR] GITHUB_TOKEN が設定されていません。", file=sys.stderr)
         sys.exit(1)
 
     news_text = "\n\n".join(
@@ -231,7 +231,7 @@ def generate_post(news_items: list[dict], dry_run: bool = False) -> dict:
     )
 
     r = requests.post(
-        "https://api.openai.com/v1/chat/completions",
+        "https://models.inference.ai.azure.com/chat/completions",
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type":  "application/json",
@@ -384,7 +384,7 @@ def main():
         return
 
     # ── 投稿文生成 ──
-    print("✍️  OpenAI GPT API で投稿文を生成中...")
+    print("✍️  GitHub Models (GPT-4o) で投稿文を生成中...")
     result = generate_post(news_items)
 
     print(f"\n{'━'*52}")
