@@ -367,6 +367,20 @@ def main():
     )
     args = parser.parse_args()
 
+    if args.dry_run:
+        print("━━ [DRY-RUN] ネットワーク・API 呼び出しをすべてスキップ ━━")
+        result = generate_post([], dry_run=True)
+        print(f"\n{'━'*52}")
+        print(f"📌 {result['topic']}")
+        print()
+        print(result["post"])
+        print()
+        print(f"🔗 {result['source_url']}")
+        print(f"{'━'*52}\n")
+        out_path = save_post(result)
+        print(f"💾 投稿文を保存 → {out_path}")
+        return
+
     # ── ニュース収集 ──
     print("📡 ニュースを収集中...")
     news_items = collect_news()
@@ -375,13 +389,6 @@ def main():
     if not news_items:
         print("[ERROR] ニュースを取得できませんでした。", file=sys.stderr)
         sys.exit(1)
-
-    if args.dry_run:
-        print("━━ [DRY-RUN] 取得したニュース一覧 ━━")
-        for i, item in enumerate(news_items, 1):
-            print(f"  {i}. [{item['source']}] {item['title'][:70]}")
-        print("\n（--dry-run のため投稿文生成・Threads 投稿はスキップ）")
-        return
 
     # ── 投稿文生成 ──
     print("✍️  GitHub Models (GPT-4o) で投稿文を生成中...")
